@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Yetellik</title>
+
+  <style>
+    /* ===============================
+       THEMES (переключаются кнопками)
+       =============================== */
+
+    /* ART (по умолчанию) */
+    :root{
+      --bg-main:
+        radial-gradient(900px 700px at 20% 10%, rgba(150, 90, 255,.22), transparent 60%),
+        radial-gradient(900px 700px at 85% 20%, rgba(0, 220, 255,.16), transparent 60%),
+        radial-gradient(900px 700px at 35% 95%, rgba(255, 80, 160,.12), transparent 55%),
+        #05070c;
+
+      --card-bg: rgba(255,255,255,.055);
+      --stroke: rgba(255,255,255,.12);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.62);
+      --shadow: 0 28px 100px rgba(0,0,0,.6);
+      --r: 20px;
+
+      --accent: #7aa2ff;
+      --tag-bg: rgba(255,255,255,.06);
+      --tag-text: rgba(255,255,255,.72);
+    }
+
+    /* DESIGN (та же структура, другая гамма) */
+    html[data-theme="design"]{
+      --bg-main:
+        radial-gradient(900px 700px at 10% 0%, rgba(0,255,170,.16), transparent 55%),
+        radial-gradient(900px 700px at 90% 10%, rgba(255,210,0,.14), transparent 58%),
+        radial-gradient(900px 700px at 40% 95%, rgba(120,120,255,.14), transparent 55%),
+        #060606;
+
+      --card-bg: rgba(20,22,28,.75);
+      --accent: #00ff9d;
+
+      --tag-bg: rgba(255,255,255,.92);
+      --tag-text: rgba(0,0,0,.82);
+    }
+
+    /* ===============================
+       BASE (мобилка friendly)
+       =============================== */
+    *{ box-sizing:border-box; }
+    html, body { height: 100%; }
+
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color:var(--text);
+
+      background: var(--bg-main);
+      background-repeat: no-repeat;
+      background-size: cover;
+
+      overflow-x:hidden;
+      position: relative;
+
+      /* стабильная высота на мобилках */
+      min-height: 100svh;
+    }
+    @supports (height: 100dvh){
+      body{ min-height: 100dvh; }
+    }
+
+    /* на мобилке fixed фон часто лагает — отключаем */
+    @media (max-width: 820px), (hover: none){
+      body{ background-attachment: scroll; }
+    }
+    @media (min-width: 821px) and (hover: hover){
+      body{ background-attachment: fixed; }
+    }
+
+    /* subtle grain (фиксированно, под контентом) */
+    body:before{
+      content:"";
+      position:fixed; inset:0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.25'/%3E%3C/svg%3E");
+      opacity:.10;
+      pointer-events:none;
+      mix-blend-mode: overlay;
+      z-index:-1;
+    }
+
+    .wrap{
+      max-width:1120px;
+      margin:0 auto;
+      padding: 22px 18px 44px;
+      position:relative;
+      z-index:1;
+    }
+
+    /* ===============================
+       HEADER (Yetellik + buttons)
+       =============================== */
+    header{
+      text-align:center;
+      padding: 10px 0 16px;
+    }
+
+    .titleRow{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:12px;
+      margin-top: 4px;
+    }
+
+    .title{
+      margin:0;
+      font-size: clamp(42px, 5.2vw, 68px);
+      line-height: 1.02;
+      font-weight: 900;
+      letter-spacing: .6px;
+      background: linear-gradient(135deg, rgba(255,255,255,.98), rgba(255,255,255,.68), rgba(255,255,255,.92));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 0 20px 80px rgba(0,0,0,.45);
+    }
+
+    .nav{
+      display:flex;
+      gap:10px;
+      justify-content:center;
+      margin-top:12px;
+    }
+    .tab{
+      padding:10px 18px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.85);
+      font-size:12px;
+      cursor:pointer;
+      letter-spacing:.25px;
+      transition: transform .15s ease, background .15s ease, border-color .15s ease, color .15s ease;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .tab:hover{
+      transform: translateY(-1px);
+      border-color: rgba(255,255,255,.26);
+      background: rgba(255,255,255,.08);
+    }
+    .tab:active{ transform: translateY(0); }
+    .tab.active{
+      background: var(--accent);
+      color: rgba(0,0,0,.86);
+      border-color: transparent;
+    }
+
+    /* ===============================
+       SECTION
+       =============================== */
+    .section{
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255,255,255,.08);
+    }
+    .sectionHead{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:14px;
+      margin: 12px 0 14px;
+    }
+    .sectionTitle{
+      font-size: 16px;
+      letter-spacing:.2px;
+      margin:0;
+      color: rgba(255,255,255,.82);
+    }
+
+    /* ===============================
+       GALLERY
+       =============================== */
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 14px;
+    }
+    .card{
+      grid-column: span 4;
+      background: var(--card-bg);
+      border:1px solid var(--stroke);
+      border-radius: var(--r);
+      overflow:hidden;
+      box-shadow: var(--shadow);
+      transform: translateZ(0);
+      position:relative;
+    }
+    @media (max-width: 920px){ .card{grid-column: span 6;} }
+    @media (max-width: 560px){ .card{grid-column: span 12;} }
+
+    .thumb{
+      width:100%;
+      aspect-ratio: 4 / 5;
+      object-fit: cover;
+      display:block;
+      cursor: zoom-in;
+      transition: transform .45s ease, filter .25s ease;
+      filter: saturate(1.05) contrast(1.02);
+      -webkit-tap-highlight-color: transparent;
+    }
+    html[data-theme="design"] .thumb{
+      filter: grayscale(.14) contrast(1.05);
+    }
+
+    /* hover только там, где есть мышка */
+    @media (hover: hover) and (pointer: fine){
+      .card:hover .thumb{ transform: scale(1.04); }
+    }
+    @media (hover: none) and (pointer: coarse){
+      .thumb{ transition: none; }
+    }
+
+    .overlay{
+      position:absolute; inset:auto 0 0 0;
+      padding: 12px 12px 14px;
+      background: linear-gradient(to top, rgba(0,0,0,.62), rgba(0,0,0,0));
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:10px;
+    }
+    .name{
+      font-size: 13px;
+      color: rgba(255,255,255,.85);
+      overflow:hidden;
+      white-space:nowrap;
+      text-overflow: ellipsis;
+    }
+    .tag{
+      font-size: 11px;
+      border:1px solid rgba(255,255,255,.16);
+      background: var(--tag-bg);
+      color: var(--tag-text);
+      padding: 5px 9px;
+      border-radius: 999px;
+      white-space:nowrap;
+      backdrop-filter: blur(10px);
+    }
+    html[data-theme="design"] .tag{
+      border-color: transparent;
+      backdrop-filter: none;
+    }
+
+    /* ===============================
+       LIGHTBOX (mobile-friendly)
+       =============================== */
+    .lightbox{
+      position:fixed; inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      background: rgba(0,0,0,.78);
+      z-index: 99;
+      touch-action: manipulation;
+    }
+    .lightbox.open{display:flex;}
+    .lightbox figure{margin:0;max-width:min(1200px, 96vw);}
+    .lightbox img{
+      width:100%;
+      max-height: 86vh;
+      object-fit: contain;
+      border-radius: 18px;
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow: 0 35px 120px rgba(0,0,0,.7);
+      display:block;
+    }
+    .lightbox figcaption{
+      margin-top:10px;
+      color: rgba(255,255,255,.65);
+      font-size:12px;
+      text-align:center;
+    }
+
+    /* запрет прокрутки страницы при открытом лайтбоксе */
+    body.noScroll{ overflow: hidden; touch-action: none; }
+
+    footer{
+      padding: 26px 0 10px;
+      color: rgba(255,255,255,.45);
+      font-size:12px;
+      text-align:center;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div class="titleRow">
+        <h1 class="title">Yetellik's portfolio</h1>
+      </div>
+
+      <div class="nav" aria-label="Переключение тем">
+        <button class="tab active" id="btnArt" type="button">ART</button>
+        <button class="tab" id="btnDesign" type="button">DESIGN</button>
+      </div>
+    </header>
+
+    <section class="section">
+      <div class="sectionHead">
+        <h2 class="sectionTitle">Gallery</h2>
+      </div>
+
+      <div class="grid" id="gallery">
+        <!-- ЗАМЕНИ НА СВОИ ФАЙЛЫ -->
+        <div class="card">
+          <img class="thumb" src="pic2.png" alt="Фото 1" data-name="Фото 1">
+          <div class="overlay"><div class="name">Фото 1</div><div class="tag">yetellik</div></div>
+        </div>
+
+        <div class="card">
+          <img class="thumb" src="pic5.png" alt="Фото 2" data-name="Фото 2">
+          <div class="overlay"><div class="name">Фото 2</div><div class="tag">yetellik</div></div>
+        </div>
+
+        <div class="card">
+          <img class="thumb" src="pic4.png" alt="Фото 3" data-name="Фото 3">
+          <div class="overlay"><div class="name">Фото 3</div><div class="tag">yetellik</div></div>
+        </div>
+
+        <div class="card">
+          <img class="thumb" src="pic1.png" alt="Фото 4" data-name="Фото 4">
+          <div class="overlay"><div class="name">Фото 4</div><div class="tag">yetellik</div></div>
+        </div>
+
+        <div class="card">
+          <img class="thumb" src="pic3.png" alt="Фото 5" data-name="Фото 5">
+          <div class="overlay"><div class="name">Фото 5</div><div class="tag">yetellik</div></div>
+        </div>
+
+        <div class="card">
+          <img class="thumb" src="photos/6.jpg" alt="Фото 6" data-name="Фото 6">
+          <div class="overlay"><div class="name">Фото 6</div><div class="tag">yetellik</div></div>
+        </div>
+      </div>
+    </section>
+
+    <footer>© Yetellik</footer>
+  </div>
+
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <figure>
+      <img id="lbImg" alt="">
+      <figcaption id="lbCap"></figcaption>
+    </figure>
+  </div>
+
+  <script>
+    // ===== Theme switch =====
+    const btnArt = document.getElementById('btnArt');
+    const btnDesign = document.getElementById('btnDesign');
+
+    btnArt.addEventListener('click', () => {
+      document.documentElement.removeAttribute('data-theme'); // ART
+      btnArt.classList.add('active');
+      btnDesign.classList.remove('active');
+    });
+
+    btnDesign.addEventListener('click', () => {
+      document.documentElement.setAttribute('data-theme','design');
+      btnDesign.classList.add('active');
+      btnArt.classList.remove('active');
+    });
+
+    // ===== Lightbox (mobile-friendly) =====
+    const lb = document.getElementById('lightbox');
+    const lbImg = document.getElementById('lbImg');
+    const lbCap = document.getElementById('lbCap');
+
+    document.getElementById('gallery').addEventListener('click', (e) => {
+      const img = e.target.closest('img.thumb');
+      if (!img) return;
+
+      lbImg.src = img.src;
+      lbImg.alt = img.alt || '';
+      lbCap.textContent = img.dataset.name || img.alt || '';
+
+      lb.classList.add('open');
+      lb.setAttribute('aria-hidden','false');
+      document.body.classList.add('noScroll');
+    });
+
+    function closeLb(){
+      lb.classList.remove('open');
+      lb.setAttribute('aria-hidden','true');
+      lbImg.src = '';
+      lbCap.textContent = '';
+      document.body.classList.remove('noScroll');
+    }
+
+    // закрытие по клику на фон
+    lb.addEventListener('click', (e) => { if (e.target === lb) closeLb(); });
+
+    // закрытие по Escape
+    window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLb(); });
+
+    // закрытие свайпом вниз (мобилка)
+    let startY = null;
+    lb.addEventListener('touchstart', (e) => {
+      startY = e.touches[0].clientY;
+    }, { passive: true });
+
+    lb.addEventListener('touchend', (e) => {
+      if (startY === null) return;
+      const endY = e.changedTouches[0].clientY;
+      if (endY - startY > 80) closeLb(); // свайп вниз
+      startY = null;
+    }, { passive: true });
+  </script>
+</body>
+</html>
