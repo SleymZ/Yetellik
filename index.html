@@ -304,8 +304,8 @@
       </div>
 
       <div class="nav" aria-label="Переключение тем">
-        <button class="tab active" id="btnArt" type="button">ART</button>
-        <button class="tab" id="btnDesign" type="button">DESIGN</button>
+        <button class="tab active" id="btnArt" type="button">DESIGN</button>
+        <button class="tab" id="btnDesign" type="button">ART</button>
       </div>
     </header>
 
@@ -314,38 +314,8 @@
         <h2 class="sectionTitle">Gallery</h2>
       </div>
 
-      <div class="grid" id="gallery">
-        <!-- ЗАМЕНИ НА СВОИ ФАЙЛЫ -->
-        <div class="card">
-          <img class="thumb" src="pic2.png" alt="Фото 1" data-name="Фото 1">
-          <div class="overlay"><div class="name">Фото 1</div><div class="tag">yetellik</div></div>
-        </div>
-
-        <div class="card">
-          <img class="thumb" src="pic5.png" alt="Фото 2" data-name="Фото 2">
-          <div class="overlay"><div class="name">Фото 2</div><div class="tag">yetellik</div></div>
-        </div>
-
-        <div class="card">
-          <img class="thumb" src="pic4.png" alt="Фото 3" data-name="Фото 3">
-          <div class="overlay"><div class="name">Фото 3</div><div class="tag">yetellik</div></div>
-        </div>
-
-        <div class="card">
-          <img class="thumb" src="pic1.png" alt="Фото 4" data-name="Фото 4">
-          <div class="overlay"><div class="name">Фото 4</div><div class="tag">yetellik</div></div>
-        </div>
-
-        <div class="card">
-          <img class="thumb" src="pic3.png" alt="Фото 5" data-name="Фото 5">
-          <div class="overlay"><div class="name">Фото 5</div><div class="tag">yetellik</div></div>
-        </div>
-
-        <div class="card">
-          <img class="thumb" src="photos/6.jpg" alt="Фото 6" data-name="Фото 6">
-          <div class="overlay"><div class="name">Фото 6</div><div class="tag">yetellik</div></div>
-        </div>
-      </div>
+      <!-- Галерея будет создаваться JS-ом -->
+      <div class="grid" id="gallery"></div>
     </section>
 
     <footer>© Yetellik</footer>
@@ -359,28 +329,67 @@
   </div>
 
   <script>
-    // ===== Theme switch =====
+    // ===== Buttons =====
     const btnArt = document.getElementById('btnArt');
     const btnDesign = document.getElementById('btnDesign');
 
-    btnArt.addEventListener('click', () => {
-      document.documentElement.removeAttribute('data-theme'); // ART
-      btnArt.classList.add('active');
-      btnDesign.classList.remove('active');
-    });
-
-    btnDesign.addEventListener('click', () => {
-      document.documentElement.setAttribute('data-theme','design');
-      btnDesign.classList.add('active');
-      btnArt.classList.remove('active');
-    });
-
-    // ===== Lightbox (mobile-friendly) =====
+    // ===== Lightbox =====
     const lb = document.getElementById('lightbox');
     const lbImg = document.getElementById('lbImg');
     const lbCap = document.getElementById('lbCap');
 
-    document.getElementById('gallery').addEventListener('click', (e) => {
+    function closeLb(){
+      lb.classList.remove('open');
+      lb.setAttribute('aria-hidden','true');
+      lbImg.src = '';
+      lbCap.textContent = '';
+      document.body.classList.remove('noScroll');
+    }
+
+    lb.addEventListener('click', (e) => { if (e.target === lb) closeLb(); });
+    window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLb(); });
+
+    // ===== ДВЕ ГАЛЕРЕИ =====
+    // ART — твои текущие файлы (у тебя они уже загружены в репозиторий)
+    const GALLERIES = {
+      art: [
+        { src: './pic1.png', name: 'Фото 1', tag: 'yetellik' },
+        { src: './pic2.png', name: 'Фото 2', tag: 'yetellik' },
+        { src: './pic3.png', name: 'Фото 3', tag: 'yetellik' },
+        { src: './pic4.png', name: 'Фото 4', tag: 'yetellik' },
+        { src: './pic5.png', name: 'Фото 5', tag: 'yetellik' },
+      ],
+
+      // DESIGN — ВАЖНО:
+      // 1) Загрузить в GitHub файлы: design1.png ... design5.png
+      //    ИЛИ
+      // 2) Переименовать тут на реальные названия твоих дизайн-картинок.
+      design: [
+        { src: './Desin.png', name: 'Design 1', tag: 'design' },
+        { src: './design2.png', name: 'Design 2', tag: 'design' },
+        { src: './design3.png', name: 'Design 3', tag: 'design' },
+        { src: './design4.png', name: 'Design 4', tag: 'design' },
+        { src: './design5.png', name: 'Design 5', tag: 'design' },
+      ]
+    };
+
+    const galleryEl = document.getElementById('gallery');
+
+    function renderGallery(key){
+      const items = GALLERIES[key] || [];
+      galleryEl.innerHTML = items.map(item => `
+        <div class="card">
+          <img class="thumb" src="${item.src}" alt="${item.name}" data-name="${item.name}">
+          <div class="overlay">
+            <div class="name">${item.name}</div>
+            <div class="tag">${item.tag || 'yetellik'}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Делегирование клика для лайтбокса (работает после перерендера)
+    galleryEl.addEventListener('click', (e) => {
       const img = e.target.closest('img.thumb');
       if (!img) return;
 
@@ -393,32 +402,23 @@
       document.body.classList.add('noScroll');
     });
 
-    function closeLb(){
-      lb.classList.remove('open');
-      lb.setAttribute('aria-hidden','true');
-      lbImg.src = '';
-      lbCap.textContent = '';
-      document.body.classList.remove('noScroll');
-    }
+    // ===== Переключение: тема + картинки =====
+    btnArt.addEventListener('click', () => {
+      document.documentElement.removeAttribute('data-theme'); // ART colors
+      btnArt.classList.add('active');
+      btnDesign.classList.remove('active');
+      renderGallery('art');
+    });
 
-    // закрытие по клику на фон
-    lb.addEventListener('click', (e) => { if (e.target === lb) closeLb(); });
+    btnDesign.addEventListener('click', () => {
+      document.documentElement.setAttribute('data-theme','design'); // DESIGN colors
+      btnDesign.classList.add('active');
+      btnArt.classList.remove('active');
+      renderGallery('design');
+    });
 
-    // закрытие по Escape
-    window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLb(); });
-
-    // закрытие свайпом вниз (мобилка)
-    let startY = null;
-    lb.addEventListener('touchstart', (e) => {
-      startY = e.touches[0].clientY;
-    }, { passive: true });
-
-    lb.addEventListener('touchend', (e) => {
-      if (startY === null) return;
-      const endY = e.changedTouches[0].clientY;
-      if (endY - startY > 80) closeLb(); // свайп вниз
-      startY = null;
-    }, { passive: true });
+    // ===== Старт =====
+    renderGallery('art');
   </script>
 </body>
 </html>
